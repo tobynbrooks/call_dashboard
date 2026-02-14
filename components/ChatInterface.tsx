@@ -11,6 +11,8 @@ export default function ChatInterface({ onResults }: ChatInterfaceProps) {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
+  const [fullAnalysisMode, setFullAnalysisMode] = useState(false)
+  const [sampleSize, setSampleSize] = useState(10)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -34,6 +36,8 @@ export default function ChatInterface({ onResults }: ChatInterfaceProps) {
         body: JSON.stringify({
           message: trimmed,
           conversationHistory: messages,
+          fullAnalysisMode,
+          sampleSize,
         }),
       })
 
@@ -84,9 +88,46 @@ export default function ChatInterface({ onResults }: ChatInterfaceProps) {
 
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-4 flex flex-col h-full">
-      <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">
-        AI Query Chat
-      </h2>
+      <div className="mb-3">
+        <div className="flex items-center justify-between mb-2">
+          <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">
+            AI Query Chat
+          </h2>
+          <button
+            onClick={() => setFullAnalysisMode(!fullAnalysisMode)}
+            className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all flex items-center gap-2 ${
+              fullAnalysisMode
+                ? 'bg-red-600 text-white hover:bg-red-700 shadow-md'
+                : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
+            }`}
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+            </svg>
+            Full Analysis Mode - Beta!
+          </button>
+        </div>
+        
+        {fullAnalysisMode && (
+          <div className="flex items-center gap-3 px-2 py-2 bg-red-50 rounded-md border border-red-200">
+            <span className="text-xs font-medium text-red-700 whitespace-nowrap">
+              Sample Size:
+            </span>
+            <input
+              type="range"
+              min="10"
+              max="20"
+              step="10"
+              value={sampleSize}
+              onChange={(e) => setSampleSize(parseInt(e.target.value))}
+              className="flex-1 h-2 bg-red-200 rounded-lg appearance-none cursor-pointer accent-red-600"
+            />
+            <span className="text-xs font-bold text-red-700 min-w-[2rem] text-center">
+              {sampleSize}
+            </span>
+          </div>
+        )}
+      </div>
 
       <div className="flex-1 overflow-y-auto mb-3 space-y-3 min-h-0">
         {messages.length === 0 && (
